@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const BG = 'https://cdn.poehali.dev/projects/03f3b2e3-c859-42e0-9f6d-ce708296ae04/files/55856e90-44e0-45f3-b47e-db0b485e340b.jpg';
+const AI_URL = 'https://functions.poehali.dev/f75ce9e0-04dc-455f-b2f9-13b6af4bc5c5';
 
 type ResourceType = 'plugin' | 'mod' | 'config';
 type FileFormat = 'jar' | 'zip' | 'txt';
@@ -99,6 +100,33 @@ const Index = () => {
   const [format, setFormat] = useState<FileFormat>('jar');
   const [description, setDescription] = useState('');
   const [code, setCode] = useState(DEFAULT_CODE.plugin);
+
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiLoading, setAiLoading] = useState<'generate' | 'improve' | null>(null);
+  const [aiError, setAiError] = useState('');
+
+  const askAi = async (mode: 'generate' | 'improve') => {
+    setAiError('');
+    if (mode === 'generate' && !aiPrompt.trim()) {
+      setAiError('Опиши, какой ресурс нужен');
+      return;
+    }
+    setAiLoading(mode);
+    try {
+      const resp = await fetch(AI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode, type, format, prompt: aiPrompt, code }),
+      });
+      const data = await resp.json();
+      if (data.code) setCode(data.code);
+      else setAiError(data.error || 'Не удалось получить ответ ИИ');
+    } catch {
+      setAiError('Ошибка соединения с ИИ');
+    } finally {
+      setAiLoading(null);
+    }
+  };
 
   useEffect(() => {
     const u = localStorage.getItem('br_user');
@@ -269,7 +297,38 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Mini console */}
+          {/* Mini console + AI */}
+          <div className="flex flex-col gap-4">
+          <div className="rounded-xl border border-gold/40 bg-gradient-to-br from-gold/10 to-accent/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-accent flex items-center justify-center">
+                <Icon name="Sparkles" size={16} className="text-background" />
+              </div>
+              <div className="leading-tight">
+                <div className="font-display uppercase tracking-wide text-sm">ИИ-ассистент</div>
+                <div className="text-[11px] text-muted-foreground">создаст или улучшит код за тебя</div>
+              </div>
+            </div>
+            <Textarea value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} rows={2}
+              placeholder="Например: плагин, который выдаёт золото за вход на сервер"
+              className="bg-background/60 resize-none text-sm" />
+            {aiError && <p className="text-xs text-destructive font-mono">{aiError}</p>}
+            <div className="flex gap-2">
+              <Button onClick={() => askAi('generate')} disabled={aiLoading !== null}
+                className="flex-1 font-display uppercase tracking-wide" size="sm">
+                <Icon name={aiLoading === 'generate' ? 'Loader2' : 'Wand2'} size={16}
+                  className={`mr-1.5 ${aiLoading === 'generate' ? 'animate-spin' : ''}`} />
+                {aiLoading === 'generate' ? 'Генерирую...' : 'Сгенерировать'}
+              </Button>
+              <Button onClick={() => askAi('improve')} disabled={aiLoading !== null} variant="outline"
+                className="flex-1 font-display uppercase tracking-wide border-accent/50" size="sm">
+                <Icon name={aiLoading === 'improve' ? 'Loader2' : 'TrendingUp'} size={16}
+                  className={`mr-1.5 ${aiLoading === 'improve' ? 'animate-spin' : ''}`} />
+                {aiLoading === 'improve' ? 'Улучшаю...' : 'Улучшить код'}
+              </Button>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-border bg-[hsl(150_35%_5%)] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-secondary/40">
               <div className="flex items-center gap-2">
@@ -290,6 +349,7 @@ const Index = () => {
                 <Icon name="Check" size={12} />синтаксис ок<span className="animate-blink">_</span>
               </span>
             </div>
+          </div>
           </div>
         </div>
       </section>
