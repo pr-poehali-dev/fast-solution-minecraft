@@ -4,33 +4,36 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 150 30% 6%;
+    --foreground: 48 30% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 152 28% 9%;
+    --card-foreground: 48 30% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 152 28% 9%;
+    --popover-foreground: 48 30% 92%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 45 85% 52%;
+    --primary-foreground: 150 40% 8%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 152 35% 14%;
+    --secondary-foreground: 48 30% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 152 20% 16%;
+    --muted-foreground: 150 12% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 145 55% 38%;
+    --accent-foreground: 48 30% 96%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 48 30% 96%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 152 25% 18%;
+    --input: 152 25% 18%;
+    --ring: 45 85% 52%;
+
+    --gold: 45 90% 55%;
+    --gold-soft: 42 70% 65%;
 
     --radius: 0.5rem;
 
@@ -96,6 +99,31 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(45 95% 60%), hsl(38 90% 48%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .pixel-border {
+    box-shadow:
+      0 0 0 2px hsl(150 40% 8%),
+      0 0 0 4px hsl(var(--border));
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(152 28% 9%);
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(145 40% 25%);
+    border-radius: 4px;
   }
 }
